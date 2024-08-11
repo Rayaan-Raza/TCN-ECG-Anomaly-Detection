@@ -35,10 +35,10 @@ The following Python libraries are required:
 
 Install the necessary libraries using:
 
-```bash
+bash
 pip install numpy pandas matplotlib seaborn darts pytorch_lightning scikit-learn torch
 
-## Data Preparation
+##Data Preparation
 Loading Data:
 The data is loaded from ECG5000_TRAIN.txt and ECG5000_TEST.txt. The files are combined and saved as Combined_data.csv.
 
