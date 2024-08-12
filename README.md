@@ -1,7 +1,8 @@
-ECG Anomaly Detection using Darts
+ECG Anomaly Detection using Temporal Convolutional Networks (TCNs) and Darts
 ================================
 
-This code implements an ECG anomaly detection system using the Darts library. The system consists of the following components:
+This project aims to detect anomalies in ECG signals using Temporal Convolutional Networks (TCNs) with the Darts library. The ECG data is sourced from the ECG5000 dataset, which is preprocessed and scaled before being used to train a TCN-based model for identifying abnormal patterns in the signals.
+The system consists of the following components:
 
 1. **Data Loading**: Loads the ECG data from a CSV file and preprocesses it.
 2. **Model Training**: Trains a TCN model on the normal ECG data to learn the patterns and trends.
@@ -83,10 +84,6 @@ The code produces the following results:
 * Detected anomalies in the test data.
 * Visualizations of the anomaly scores and detected anomalies.
 
-**Note**
------
-
-This code assumes that the ECG data is stored in a CSV file named `Combined_data.csv` and that the normal ECG data is stored in a CSV file named `normal data.csv`. The code also assumes that the anomalous ECG data is stored in a CSV file named `abnormal data.csv`. You may need to modify the code to match your specific file structure and naming conventions.
 
 **Future Work**
 --------------
