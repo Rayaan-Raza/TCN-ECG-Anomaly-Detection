@@ -1,173 +1,96 @@
-# ECG Anomaly Detection using Temporal Convolutional Networks (TCNs) and Darts
+ECG Anomaly Detection using Darts
+================================
 
-## Overview
+This code implements an ECG anomaly detection system using the Darts library. The system consists of the following components:
 
-This project aims to detect anomalies in ECG signals using Temporal Convolutional Networks (TCNs) with the Darts library. The ECG data is sourced from the ECG5000 dataset, which is preprocessed and scaled before being used to train a TCN-based model for identifying abnormal patterns in the signals.
+1. **Data Loading**: Loads the ECG data from a CSV file and preprocesses it.
+2. **Model Training**: Trains a TCN model on the normal ECG data to learn the patterns and trends.
+3. **Anomaly Detection**: Uses the trained model to detect anomalies in the ECG data.
+4. **Visualization**: Visualizes the anomaly scores and detected anomalies.
 
-## Table of Contents
+**Code Structure**
+-------------------
 
-- [Introduction](#introduction)
-- [Requirements](#requirements)
-- [Data Preparation](#data-preparation)
-- [Model Training](#model-training)
-- [Anomaly Detection](#anomaly-detection)
-- [Evaluation](#evaluation)
-- [Results](#results)
-- [Usage](#usage)
-- [License](#license)
+The code is organized into the following sections:
 
-## Introduction
+### Libraries
 
-This project uses the ECG5000 dataset containing labeled ECG signals (normal and abnormal). The objective is to develop and train a Temporal Convolutional Network (TCN) to identify anomalies in ECG signals effectively. The model's performance is evaluated using various metrics and visualizations.
+* Import necessary libraries, including:
+	+ Darts: A Python library for time series forecasting and anomaly detection.
+	+ Pandas: A Python library for data manipulation and analysis.
+	+ NumPy: A Python library for numerical computing.
+	+ Matplotlib: A Python library for data visualization.
+	+ Seaborn: A Python library for data visualization based on Matplotlib.
 
-## Requirements
+### Data Loading
 
-The following Python libraries are required:
+* Load the ECG data from a CSV file named `Combined_data.csv`.
+* Preprocess the data by:
+	+ Removing the label column.
+	+ Scaling the data using a RobustScaler to reduce the effect of outliers.
 
-- `numpy`
-- `pandas`
-- `matplotlib`
-- `seaborn`
-- `darts`
-- `pytorch_lightning`
-- `scikit-learn`
-- `torch`
+### Model Training
 
-Install the necessary libraries using:
+* Define a TCN model with the following architecture:
+	+ Input chunk length: 50
+	+ Output chunk length: 30
+	+ Kernel size: 3
+	+ Number of filters: 32
+	+ Number of layers: 3
+	+ Dropout rate: 0.2
+* Train the model on the normal ECG data using the Adam optimizer and a learning rate of 0.001.
+* Define an early stopping callback to stop training when the validation loss stops improving.
 
-bash
-pip install numpy pandas matplotlib seaborn darts pytorch_lightning scikit-learn torch
+### Anomaly Detection
 
-##Data Preparation
-Loading Data:
-The data is loaded from ECG5000_TRAIN.txt and ECG5000_TEST.txt. The files are combined and saved as Combined_data.csv.
+* Define an anomaly detection model using the trained TCN model and a NormScorer.
+* Calculate anomaly scores for the test data using the anomaly detection model.
+* Detect anomalies by thresholding the anomaly scores using a z-score threshold of 3.
 
-python
-Copy code
-import pandas as pd
+### Visualization
 
-train_data = pd.read_csv('ECG5000_TRAIN.txt', header=None, delimiter=' ')
-test_data = pd.read_csv('ECG5000_TEST.txt', header=None, delimiter=' ')
-combined_data = pd.concat([train_data, test_data], axis=0)
-combined_data.to_csv('Combined_data.csv', index=False)
+* Visualize the anomaly scores and detected anomalies using Matplotlib and Seaborn.
+* Plot the ECG data with normal and anomalous segments using different colors.
+* Highlight detected anomalies using red markers.
 
-Data Extraction:
-Normal and abnormal ECG signals are extracted and saved into normal_data.csv and abnormal_data.csv.
+**Functions**
+-------------
 
-python
-Copy code
-normal_data = combined_data[combined_data[0] == 0]
-abnormal_data = combined_data[combined_data[0] == 1]
-normal_data.to_csv('normal_data.csv', index=False)
-abnormal_data.to_csv('abnormal_data.csv', index=False)
-Scaling:
-RobustScaler is used to scale the training, validation, and test data.
+### `calculate_anomaly_scores_by_chunk`
 
-python
-Copy code
-from sklearn.preprocessing import RobustScaler
+* Calculate anomaly scores for each chunk of data.
+* Compute z-scores and detect anomalies for each chunk.
+* Return the anomaly scores and detected anomalies for each chunk.
 
-scaler = RobustScaler()
-scaled_data = scaler.fit_transform(combined_data.iloc[:, 1:])
-Time Series Conversion:
-The scaled data is converted into TimeSeries objects using Darts.
+### `plot_ecg_with_anomalies`
 
-python
-Copy code
-from darts import TimeSeries
+* Plot the ECG data with normal and anomalous segments.
+* Highlight detected anomalies using red markers.
+* Return the plot.
 
-series = TimeSeries.from_dataframe(pd.DataFrame(scaled_data, columns=['value']))
-Model Training
-Model Definition:
-Define the Temporal Convolutional Network (TCN) model.
+### `plot_ecg_chunk_with_normal_and_anomalous_segments`
 
-python
-Copy code
-from darts.models import TCNModel
+* Plot a chunk of ECG data with normal and anomalous segments.
+* Highlight detected anomalies using red markers.
+* Return the plot.
 
-model = TCNModel(
-    input_chunk_length=50,
-    output_chunk_length=30,
-    kernel_size=3,
-    num_filters=32,
-    num_layers=3,
-    dropout=0.2
-)
-Training:
-Train the model using the Trainer class from pytorch_lightning.
+**Results**
+----------
 
-python
-Copy code
-from pytorch_lightning import Trainer
+The code produces the following results:
 
-trainer = Trainer(max_epochs=50, early_stop_callback=True)
-trainer.fit(model, train_dataloader, val_dataloader)
-Callback:
-Custom callback for logging training and validation losses.
+* Anomaly scores for the test data.
+* Detected anomalies in the test data.
+* Visualizations of the anomaly scores and detected anomalies.
 
-python
-Copy code
-from pytorch_lightning.callbacks import Callback
+**Note**
+-----
 
-class LossLoggingCallback(Callback):
-    def on_epoch_end(self, trainer, pl_module):
-        # Log losses here
-        pass
-Anomaly Detection
-Model Fitting:
-Fit the TCN model using ForecastingAnomalyModel with a NormScorer.
+This code assumes that the ECG data is stored in a CSV file named `Combined_data.csv` and that the normal ECG data is stored in a CSV file named `normal data.csv`. The code also assumes that the anomalous ECG data is stored in a CSV file named `abnormal data.csv`. You may need to modify the code to match your specific file structure and naming conventions.
 
-python
-Copy code
-from darts.models import ForecastingAnomalyModel
-from darts.metrics import NormScorer
+**Future Work**
+--------------
 
-anomaly_model = ForecastingAnomalyModel(model, scorer=NormScorer())
-anomaly_model.fit(train_series)
-Scoring:
-Calculate anomaly scores and detect anomalies based on z-scores.
-
-python
-Copy code
-scores = anomaly_model.score(test_series)
-anomalies = scores > 3  # Example threshold
-Visualization:
-Plot anomaly scores and detected anomalies.
-
-python
-Copy code
-import matplotlib.pyplot as plt
-
-plt.figure(figsize=(12, 6))
-plt.plot(test_series.time_index, test_series.values, label='ECG Signal')
-plt.plot(scores.time_index, scores.values, label='Anomaly Scores')
-plt.scatter(anomalies.index, anomalies.values, color='red', label='Detected Anomalies')
-plt.legend()
-plt.show()
-Evaluation
-Metrics:
-Compute MAE (Mean Absolute Error) and RMSE (Root Mean Squared Error).
-
-python
-Copy code
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-
-mae = mean_absolute_error(true_values, predicted_values)
-rmse = mean_squared_error(true_values, predicted_values, squared=False)
-Anomaly Detection:
-Assess performance by plotting detected anomalies and calculating z-scores.
-
-python
-Copy code
-# Example plot
-plt.figure(figsize=(12, 6))
-plt.plot(test_series.time_index, test_series.values, label='ECG Signal')
-plt.scatter(anomalies.index, anomalies.values, color='red', label='Detected Anomalies')
-plt.legend()
-plt.show()
-Results
-The results include:
-
-Visualizations: Normal and abnormal ECG signals, histograms and density plots of signal amplitudes.
-Anomaly Scores: Plots of anomaly scores and detected anomalies on test data.
-Training/Validation Losses: Plots showing training and validation losses over epochs.
+* Improve the performance of the anomaly detection model by tuning the hyperparameters.
+* Experiment with different anomaly detection algorithms and techniques.
+* Integrate the anomaly detection system with a real-time ECG monitoring system.
